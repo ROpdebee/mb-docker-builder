@@ -20,9 +20,6 @@ jobs:
         run:
           git apply ../image_names.patch
         working-directory: musicbrainz-docker
-      - name: Set up docker layer caching
-        uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
       - name: Log in to GitHub container registry
         uses: docker/login-action@v1
         with:
@@ -32,7 +29,7 @@ jobs:
       - name: Build and push MB production docker images
         env:
           MUSICBRAINZ_SERVER_VERSION: production
-          REGISTRY_PREFIX: ghcr.io/ROpdebee/
+          REGISTRY_PREFIX: ghcr.io/ropdebee/
         run: |
           docker compose build
           docker compose push
@@ -40,7 +37,7 @@ jobs:
       - name: Build and push MB beta docker images
         env:
           MUSICBRAINZ_SERVER_VERSION: beta
-          REGISTRY_PREFIX: ghcr.io/ROpdebee/
+          REGISTRY_PREFIX: ghcr.io/ropdebee/
         run: |
           docker compose build
           docker compose push
