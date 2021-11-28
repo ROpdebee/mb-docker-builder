@@ -9,14 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out musicbrainz-docker
-        uses: actions/checkout@v2
-        with:
-          repository: metabrainz/musicbrainz-docker
       - name: Check out own repository
         uses: actions/checkout@v2
         with:
           path: patches
+      - name: Check out musicbrainz-docker
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-docker
       - name: Apply patches
         run:
           git apply patches/image_names.patch
@@ -49,6 +49,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          filename: .github/build-failure.md
+          filename: patches/.github/build-failure.md
           update_existing: true
           search_existing: open
