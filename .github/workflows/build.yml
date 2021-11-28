@@ -11,15 +11,15 @@ jobs:
     steps:
       - name: Check out own repository
         uses: actions/checkout@v2
-        with:
-          path: ../patches
       - name: Check out musicbrainz-docker
         uses: actions/checkout@v2
         with:
           repository: metabrainz/musicbrainz-docker
+          path: musicbrainz-docker
       - name: Apply patches
         run:
           git apply ../patches/image_names.patch
+        working-directory: musicbrainz-docker
       - name: Set up docker layer caching
         uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
@@ -36,6 +36,7 @@ jobs:
         run:
           docker compose build
           docker compose push
+        working-directory: musicbrainz-docker
       - name: Build and push MB beta docker images
         env:
           MUSICBRAINZ_SERVER_VERSION: beta
@@ -43,12 +44,13 @@ jobs:
         run:
           docker compose build
           docker compose push
+        working-directory: musicbrainz-docker
       - name: Open issue if build failed
         if: failure()
         uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          filename: ../patches/.github/build-failure.md
+          filename: .github/build-failure.md
           update_existing: true
           search_existing: open
