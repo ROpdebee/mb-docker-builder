@@ -1,0 +1,47 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 46499c6..3a5f202 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -20,7 +20,7 @@ services:
+       context: build/postgres
+       args:
+         - POSTGRES_VERSION=${POSTGRES_VERSION:-12}
+-    image: musicbrainz-docker_db:${POSTGRES_VERSION:-12}
++    image: ${REGISTRY_PREFIX}musicbrainz-docker_db:${POSTGRES_VERSION:-12}
+     logging:
+       driver: "json-file"
+       options:
+@@ -41,6 +41,8 @@ services:
+       context: build/musicbrainz
+       args:
+         - POSTGRES_VERSION=${POSTGRES_VERSION:-12}
++        - MUSICBRAINZ_SERVER_VERSION=${MUSICBRAINZ_SERVER_VERSION:-production}
++    image: ${REGISTRY_PREFIX}musicbrainz-docker_musicbrainz:${MUSICBRAINZ_SERVER_VERSION:-production}
+     logging:
+       driver: "json-file"
+       options:
+@@ -68,6 +70,7 @@ services:
+ 
+   indexer:
+     build: build/sir
++    image: ${REGISTRY_PREFIX}musicbrainz-docker_sir
+     env_file:
+       - ./default/postgres.env
+     logging:
+@@ -87,7 +90,7 @@ services:
+       context: build/solr
+       args:
+         - MB_SOLR_VERSION=${MB_SOLR_VERSION:-3.4.2}
+-    image: musicbrainz-docker_search:${MB_SOLR_VERSION:-3.4.2}
++    image: ${REGISTRY_PREFIX}musicbrainz-docker_search:${MB_SOLR_VERSION:-3.4.2}
+     logging:
+       driver: "json-file"
+       options:
+@@ -104,6 +107,7 @@ services:
+ 
+   mq:
+     build: build/rabbitmq
++    image: ${REGISTRY_PREFIX}musicbrainz-docker_mq
+     hostname: "mq"
+     logging:
+       driver: "json-file"
