@@ -1,0 +1,30 @@
+---
+name: Build docker images
+on:
+  schedule:
+    - cron: 39 12 * * 0
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out musicbrainz-docker
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-docker
+      - name: Set up docker layer caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build MB docker images
+        run:
+          docker-compose build
+      - name: Open issue if build failed
+        if: failure()
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: .github/build-failure.md
+          update_existing: true
+          search_existing: open
