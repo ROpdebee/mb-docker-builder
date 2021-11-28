@@ -33,7 +33,7 @@ jobs:
         env:
           MUSICBRAINZ_SERVER_VERSION: production
           REGISTRY_PREFIX: ghcr.io/ROpdebee/
-        run:
+        run: |
           docker compose build
           docker compose push
         working-directory: musicbrainz-docker
@@ -41,7 +41,7 @@ jobs:
         env:
           MUSICBRAINZ_SERVER_VERSION: beta
           REGISTRY_PREFIX: ghcr.io/ROpdebee/
-        run:
+        run: |
           docker compose build
           docker compose push
         working-directory: musicbrainz-docker
