@@ -44,16 +44,3 @@ index 6e5b86e..7fa32e7 100755
  then
    /musicbrainz-server/script/compile_resources.sh
  fi
-diff --git a/docker-compose.yml b/docker-compose.yml
-index 3a5f202..9b383d7 100644
---- a/docker-compose.yml
-+++ b/docker-compose.yml
-@@ -42,6 +42,8 @@ services:
-       args:
-         - POSTGRES_VERSION=${POSTGRES_VERSION:-12}
-         - MUSICBRAINZ_SERVER_VERSION=${MUSICBRAINZ_SERVER_VERSION:-production}
-+        - MUSICBRAINZ_WEB_SERVER_HOST=${MUSICBRAINZ_WEB_SERVER_HOST:-localhost}
-+        - MUSICBRAINZ_WEB_SERVER_PORT=${MUSICBRAINZ_WEB_SERVER_PORT:-5000}
-     image: ${REGISTRY_PREFIX}musicbrainz-docker_musicbrainz:${MUSICBRAINZ_SERVER_VERSION:-production}
-     logging:
-       driver: "json-file"
