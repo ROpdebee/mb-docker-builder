@@ -1,5 +1,6 @@
 ---
 name: Build docker images
+
 on:
   schedule:
     - cron: 39 12 * * 0
@@ -8,58 +9,212 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-postgres:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_VERSION: 12
+      IMAGE_TAG: ghcr.io/ropdebee/musicbrainz-docker_db:12
+      CACHE_TAG: ghcr.io/ropdebee/musicbrainz-docker_db:buildcache
+
     steps:
-      - name: Check out own repository
+      - name: Check out own repository for patch
         uses: actions/checkout@v2
+
       - name: Check out musicbrainz-docker
         uses: actions/checkout@v2
         with:
           repository: metabrainz/musicbrainz-docker
           path: musicbrainz-docker
-      - name: Apply patches
-        run:
-          for patch in ../*.patch; do git apply "$patch"; done
+
+      - name: Apply postgres patch for multistage build
+        run: git apply ../002-postgres_multistage_build.patch
         working-directory: musicbrainz-docker
-      - name: Pull previous version of images
-        env:
-          REGISTRY_PREFIX: ghcr.io/ropdebee/
-        run: docker compose pull --ignore-pull-failures
-        working-directory: musicbrainz-docker
-      - name: Set up docker layer caching
-        uses: satackey/action-docker-layer-caching@v0.0.11
-        with:
-          key: docker-cache-{hash}
-          restore-keys: |
-            docker-cache-
-        continue-on-error: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: Log in to GitHub container registry
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push MB production docker images
-        env:
-          MUSICBRAINZ_SERVER_VERSION: production
-          MUSICBRAINZ_WEB_SERVER_HOST: localtest.musicbrainz.org
-          MUSICBRAINZ_WEB_SERVER_PORT: 443
-          REGISTRY_PREFIX: ghcr.io/ropdebee/
-        run: |
-          docker compose build
-          docker compose push
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: musicbrainz-docker/build/postgres
+          build-args: |
+            POSTGRES_VERSION=${{ env.POSTGRES_VERSION }}
+          shm-size: 2g
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.CACHE_TAG }}
+          cache-to: type=registry,ref=${{ env.CACHE_TAG }},mode=max
+
+  build-indexer:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ghcr.io/ropdebee/musicbrainz-docker_sir:latest
+      CACHE_TAG: ghcr.io/ropdebee/musicbrainz-docker_sir:buildcache
+
+    steps:
+      - name: Check out musicbrainz-docker
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-docker
+          path: musicbrainz-docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to GitHub container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: musicbrainz-docker/build/sir
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.CACHE_TAG }}
+          cache-to: type=registry,ref=${{ env.CACHE_TAG }},mode=max
+
+  build-search:
+    runs-on: ubuntu-latest
+    env:
+      MB_SOLR_VERSION: '3.4.2'
+      IMAGE_TAG: ghcr.io/ropdebee/musicbrainz-docker_search:3.4.2
+      CACHE_TAG: ghcr.io/ropdebee/musicbrainz-docker_search:buildcache
+
+    steps:
+      - name: Check out musicbrainz-docker
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-docker
+          path: musicbrainz-docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to GitHub container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: musicbrainz-docker/build/solr
+          build-args: |
+            MB_SOLR_VERSION=${{ env.MB_SOLR_VERSION }}
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.CACHE_TAG }}
+          cache-to: type=registry,ref=${{ env.CACHE_TAG }},mode=max
+
+  build-mq:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ghcr.io/ropdebee/musicbrainz-docker_mq:latest
+      CACHE_TAG: ghcr.io/ropdebee/musicbrainz-docker_mq:buildcache
+
+    steps:
+      - name: Check out musicbrainz-docker
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-docker
+          path: musicbrainz-docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to GitHub container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: musicbrainz-docker/build/rabbitmq
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.CACHE_TAG }}
+          cache-to: type=registry,ref=${{ env.CACHE_TAG }},mode=max
+
+  build-musicbrainz:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - production
+          - beta
+    env:
+      IMAGE_TAG: ghcr.io/ropdebee/musicbrainz-docker_musicbrainz:${{ matrix.version }}
+      CACHE_TAG: ghcr.io/ropdebee/musicbrainz-docker_musicbrainz:${{ matrix.version }}-buildcache
+      POSTGRES_VERSION: 12
+      MUSICBRAINZ_WEB_SERVER_HOST: localtest.musicbrainz.org
+      MUSICBRAINZ_WEB_SERVER_PORT: 443
+
+    steps:
+      - name: Check out own repository for patch
+        uses: actions/checkout@v2
+
+      - name: Check out musicbrainz-docker
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-docker
+          path: musicbrainz-docker
+
+      - name: Apply patch for prebuilt static resources
+        run: git apply ../003-mb-static-resources.patch
         working-directory: musicbrainz-docker
-      - name: Build and push MB beta docker images
-        env:
-          MUSICBRAINZ_SERVER_VERSION: beta
-          REGISTRY_PREFIX: ghcr.io/ropdebee/
-        run: |
-          docker compose build
-          docker compose push
-        working-directory: musicbrainz-docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to GitHub container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: musicbrainz-docker/build/musicbrainz
+          build-args: |
+            POSTGRES_VERSION=${{ env.POSTGRES_VERSION }}
+            MUSICBRAINZ_SERVER_VERSION=${{ matrix.version }}
+            MUSICBRAINZ_WEB_SERVER_HOST=${{ env.MUSICBRAINZ_WEB_SERVER_HOST }}
+            MUSICBRAINZ_WEB_SERVER_PORT=${{ env.MUSICBRAINZ_WEB_SERVER_PORT }}
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_TAG }}
+          cache-from: type=registry,ref=${{ env.CACHE_TAG }}
+          cache-to: type=registry,ref=${{ env.CACHE_TAG }},mode=max
+
+  report-failures:
+    runs-on: ubuntu-latest
+    needs:
+      - build-postgres
+      - build-musicbrainz
+      - build-mq
+      - build-search
+      - build-indexer
+    if: failure()
+    steps:
       - name: Open issue if build failed
-        if: failure()
         uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
