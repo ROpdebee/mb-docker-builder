@@ -214,6 +214,9 @@ jobs:
       - build-indexer
     if: failure()
     steps:
+      - name: Clone repository for issue template
+        uses: actions/checkout@v2
+
       - name: Open issue if build failed
         uses: JasonEtco/create-an-issue@v2
         env:
