@@ -187,7 +187,20 @@ jobs:
       # the source code, therefore allowing the build to reuse the cached
       # layers if dependencies haven't changed, while source code has.
       - name: Apply incremental build Dockerfile
-        run: mv -f Dockerfile.mbs-incremental musicbrainz-docker/build/musicbrainz/Dockerfile
+        run: >-
+          mv -f
+          Dockerfile.mbs-incremental
+          musicbrainz-docker/build/musicbrainz/Dockerfile
+
+      # This wil prevent the .git directory from being in the image. The
+      # (relatively small) space savings are nice, but this is mainly to
+      # prevent layers from changing every time we clone the repository and
+      # rebuild the image.
+      - name: Apply MBS .dockerignore
+        run: >-
+          mv -f
+          dockerignore.mbs
+          musicbrainz-docker/build/musicbrainz/.dockerignore
 
       - name: Check out musicbrainz-server
         uses: actions/checkout@v2
