@@ -180,6 +180,22 @@ jobs:
         run: git apply ../003-mb-static-resources.patch
         working-directory: musicbrainz-docker
 
+      # We use a custom Dockerfile to build MBS which improves cacheability.
+      # The original Dockerfile clones the MBS repository during the build
+      # itself. When caching is enabled, it will never run the checkout again.
+      # Our custom Dockerfile also installs dependencies before copying over
+      # the source code, therefore allowing the build to reuse the cached
+      # layers if dependencies haven't changed, while source code has.
+      - name: Apply incremental build Dockerfile
+        run: mv -f Dockerfile.mbs-incremental musicbrainz-docker/build/musicbrainz/Dockerfile
+
+      - name: Check out musicbrainz-server
+        uses: actions/checkout@v2
+        with:
+          repository: metabrainz/musicbrainz-server
+          path: musicbrainz-docker/build/musicbrainz/musicbrainz-server
+          ref: ${{ matrix.version }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 

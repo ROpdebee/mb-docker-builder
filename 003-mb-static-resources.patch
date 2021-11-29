@@ -1,27 +1,3 @@
-diff --git a/build/musicbrainz/Dockerfile b/build/musicbrainz/Dockerfile
-index 565477d..a46de6b 100644
---- a/build/musicbrainz/Dockerfile
-+++ b/build/musicbrainz/Dockerfile
-@@ -117,6 +117,8 @@ RUN cat /usr/local/bin/snippet.perllocallib.bashrc >> ~/.bashrc \
- # Postgres user/password would be solely needed to compile tests
- ARG POSTGRES_USER=doesntmatteraslongasyoudontcompiletests
- ARG POSTGRES_PASSWORD=doesntmatteraslongasyoudontcompiletests
-+ARG MUSICBRAINZ_WEB_SERVER_HOST=localhost
-+ARG MUSICBRAINZ_WEB_SERVER_PORT=5000
- 
- ENV BASH_ENV=/noninteractive.bash_env \
-     MUSICBRAINZ_BASE_FTP_URL=ftp://ftp.eu.metabrainz.org/pub/musicbrainz \
-@@ -126,8 +128,8 @@ ENV BASH_ENV=/noninteractive.bash_env \
-     MUSICBRAINZ_SEARCH_SERVER=search:8983/solr \
-     MUSICBRAINZ_SERVER_PROCESSES=10 \
-     MUSICBRAINZ_STANDALONE_SERVER=0 \
--    MUSICBRAINZ_WEB_SERVER_HOST=localhost \
--    MUSICBRAINZ_WEB_SERVER_PORT=5000 \
-+    MUSICBRAINZ_WEB_SERVER_HOST=${MUSICBRAINZ_WEB_SERVER_HOST} \
-+    MUSICBRAINZ_WEB_SERVER_PORT=${MUSICBRAINZ_WEB_SERVER_PORT} \
-     # Needed for yarn to install production dependencies only
-     NODE_ENV=production \
-     POSTGRES_USER=musicbrainz \
 diff --git a/build/musicbrainz/scripts/start.sh b/build/musicbrainz/scripts/start.sh
 index 6e5b86e..7fa32e7 100755
 --- a/build/musicbrainz/scripts/start.sh
