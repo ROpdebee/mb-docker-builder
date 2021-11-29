@@ -23,7 +23,7 @@ index 565477d..a46de6b 100644
      NODE_ENV=production \
      POSTGRES_USER=musicbrainz \
 diff --git a/build/musicbrainz/scripts/start.sh b/build/musicbrainz/scripts/start.sh
-index 6e5b86e..32beb97 100755
+index 6e5b86e..7fa32e7 100755
 --- a/build/musicbrainz/scripts/start.sh
 +++ b/build/musicbrainz/scripts/start.sh
 @@ -2,9 +2,15 @@
@@ -39,7 +39,7 @@ index 6e5b86e..32beb97 100755
  if ! grep -q -s \
 -  "//${MUSICBRAINZ_WEB_SERVER_HOST}:${MUSICBRAINZ_WEB_SERVER_PORT}" \
 -  /musicbrainz-server/root/static/build/runtime.js.map
-+  "$MB_STATIC_ROOT"
++  "$MB_STATIC_ROOT" \
 +  /musicbrainz-server/root/static/scripts/common/DBDefs.js
  then
    /musicbrainz-server/script/compile_resources.sh
