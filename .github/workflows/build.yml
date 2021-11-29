@@ -31,6 +31,8 @@ jobs:
       - name: Build and push MB production docker images
         env:
           MUSICBRAINZ_SERVER_VERSION: production
+          MUSICBRAINZ_WEB_SERVER_HOST: localtest.musicbrainz.org
+          MUSICBRAINZ_WEB_SERVER_PORT: 443
           REGISTRY_PREFIX: ghcr.io/ropdebee/
         run: |
           docker compose build
