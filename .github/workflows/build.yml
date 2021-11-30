@@ -165,6 +165,7 @@ jobs:
       POSTGRES_VERSION: 12
       MUSICBRAINZ_WEB_SERVER_HOST: localtest.musicbrainz.org
       MUSICBRAINZ_WEB_SERVER_PORT: 443
+      MUSICBRAINZ_STANDALONE_SERVER: 1
 
     steps:
       - name: Check out own repository for patch
@@ -228,6 +229,7 @@ jobs:
             MUSICBRAINZ_SERVER_VERSION=${{ matrix.version }}
             MUSICBRAINZ_WEB_SERVER_HOST=${{ env.MUSICBRAINZ_WEB_SERVER_HOST }}
             MUSICBRAINZ_WEB_SERVER_PORT=${{ env.MUSICBRAINZ_WEB_SERVER_PORT }}
+            MUSICBRAINZ_STANDALONE_SERVER=${{ env.MUSICBRAINZ_STANDALONE_SERVER }}
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ env.IMAGE_TAG }}
           cache-from: type=registry,ref=${{ env.CACHE_TAG }}
