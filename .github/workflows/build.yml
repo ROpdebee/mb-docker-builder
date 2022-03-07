@@ -18,10 +18,10 @@ jobs:
 
     steps:
       - name: Check out own repository for patch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check out musicbrainz-docker
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: metabrainz/musicbrainz-docker
           path: musicbrainz-docker
@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Check out musicbrainz-docker
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: metabrainz/musicbrainz-docker
           path: musicbrainz-docker
@@ -93,7 +93,7 @@ jobs:
 
     steps:
       - name: Check out musicbrainz-docker
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: metabrainz/musicbrainz-docker
           path: musicbrainz-docker
@@ -127,7 +127,7 @@ jobs:
 
     steps:
       - name: Check out musicbrainz-docker
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: metabrainz/musicbrainz-docker
           path: musicbrainz-docker
@@ -169,10 +169,10 @@ jobs:
 
     steps:
       - name: Check out own repository for patch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Check out musicbrainz-docker
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: metabrainz/musicbrainz-docker
           path: musicbrainz-docker
@@ -204,7 +204,7 @@ jobs:
           musicbrainz-docker/build/musicbrainz/.dockerignore
 
       - name: Check out musicbrainz-server
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: metabrainz/musicbrainz-server
           path: musicbrainz-docker/build/musicbrainz/musicbrainz-server
@@ -246,7 +246,7 @@ jobs:
     if: failure()
     steps:
       - name: Clone repository for issue template
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Open issue if build failed
         uses: JasonEtco/create-an-issue@v2
