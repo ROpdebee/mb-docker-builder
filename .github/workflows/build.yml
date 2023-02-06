@@ -41,7 +41,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: musicbrainz-docker/build/postgres
           build-args: |
@@ -76,7 +76,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: musicbrainz-docker/build/sir
           push: ${{ github.ref == 'refs/heads/main' }}
@@ -109,7 +109,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: musicbrainz-docker/build/solr
           build-args: |
@@ -143,7 +143,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: musicbrainz-docker/build/rabbitmq
           push: ${{ github.ref == 'refs/heads/main' }}
@@ -221,7 +221,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: musicbrainz-docker/build/musicbrainz
           build-args: |
